@@ -159,9 +159,155 @@ hw11 <- hw1 %>% select(LOS,Age,IR,NumOfBeds,AFAS)
 ```
 ### Correlation Matrix
 
+The correlation matrix for the model $LOS_1 = \beta_0 + \beta_1Age_1 + \beta_2IR_1 + \beta_3AFAS_1 + \epsilon_1$ is;
+
+$$\begin{array}{c|cccc}
+ & LOS & Age & IR & AFAS\\
+ \hline
+LOS & 1.00000 & 0.18891 & 0.53344 & 0.35554\\
+ &  & (0.0451) & (<.0001) & (0.0001)\\
+ \hline
+Age & 0.18891 & 1.00000 & 0.00109 & -0.04045\\
+ & (0.0451) &  & (0.9908) & (0.6705)\\
+ \hline
+IR & 0.53344 & 0.00109 & 1.00000 & 0.41260 \\
+ & (<.0001) & (0.9908) &  & (<.0001)\\
+ \hline
+ AFAS & 0.35554 & -0.04045 & 0.41260 & 1.00000 \\
+ & (0.0001) &  (0.6705) & (<.0001) &
+\end{array}$$
+
+while that of the model $LOS_1 = \beta_0 + \beta_1NumofBeds_1 + \beta_2IR_1 + \beta_3AFAS_1 + \epsilon_1$ is;
+
+$$\begin{array}{c|cccc}
+ & LOS & NumofBeds & IR & AFAS\\
+ \hline
+LOS & 1.00000 & 0.40927 & 0.53344 & 0.35554\\
+ &  & (0.0451) & (<.0001) & (0.0001)\\
+ \hline
+NumofBeds & 0.40927 & 1.00000 & 0.35977 & 0.79452\\
+ & (<.0001) &  & (<.0001) & (<.0001)\\
+ \hline
+IR & 0.53344 & 0.35977 & 1.00000 & 0.41260 \\
+ & (<.0001) & (<.0001) &  & (<.0001)\\
+ \hline
+ AFAS & 0.35554 & 0.79452 & 0.41260 & 1.00000 \\
+ & (0.0001) &  (0.79452) & (<.0001) &
+\end{array}$$
 
 
 ## Appendix (Graphs & SAS Code)
+
+### SAS Codes
+
+#### Codes for Question 1
+
+PROC IML;
+
+*DEFINE THE MATRIX WHICH IS A IN THIS CASE;
+	A={1 0 1,
+	   0 2 2,
+	   1 2 3};
+	   
+RANKOFMATRIX =ROUND(TRACE(GINV(A)*A)); *GETTING THE RANK OF THE MATRIX;
+
+DETERMI = DET(A); *DETERMINANT OF MATRIX A;
+
+EVECTOR = EIGVEC(A); *GETTING THE EIGEN VECTOR;
+
+EVALUE = EIGVAL(A);   *GETTING THE EIGEN VALUE;
+
+INVEVECTOR = INV(EVECTOR); *GETTING THE INVERSE OF THE EIGENVECTOR;
+
+DIAGONALEVALUE = DIAG(EVALUE); *CONVERTING THE EIGEN VALUE TO DIAGONAL MATRIX;
+
+ORIGINALMATRIX = EVECTOR * DIAGONALEVALUE * INVEVECTOR; *TESTING THE LEMMA 2(IV) IN THE TEXTBOOK;
+
+PRINT RANKOFMATRIX DETERMI EVALUE EVECTOR INVEVECTOR DIAGONALEVALUE 
+
+ORIGINALMATRIX;
+
+QUIT;
+
+#### Codes for Question 7
+
+DATA SENIC;
+
+infile `"C:\Users\OODOOE\Downloads\Video\Second Year\`
+
+`First Semester\Foundation\foundation_assignment1\Data\APPENC01.txt"`;
+
+input IDNUM LOS Age IR RCR RCXR NumOfBeds MSA Region ADC NumberOfNurses AFAS;
+
+label LOS='Length of Patient Stay'
+
+	  Age='Age of patients'
+	  
+	  IR='Infection Risk'
+	  
+	  AFAS='Available Facilities and Services'
+	  
+	  NumOfBeds='Number of Beds';
+	  
+run;
+
+data hw1;
+
+set SENIC;
+
+keep IDNUM LOS Age NumOfBeds IR AFAS;
+
+run;
+
+*Scatter plot for each of the predictor variables;
+
+title 'Stem and Leaf Plot';
+
+ods listing;
+
+ods graphics off;
+
+ods select Plots SSPlots;
+
+proc univariate data=Senic plot;
+
+   var Age IR AFAS NumofBeds;
+
+run;
+
+title;
+
+*Scatter Plot and Correlation Matrix for Model 1;
+
+title 'Correlation Matrix and Scatter Plots for Model 1';
+
+ods graphics on;
+
+proc corr data=Senic plots=matrix(histogram);
+
+var LOS Age IR AFAS;
+
+run;
+
+ods graphics off;
+
+title;
+
+*Scatter Plot and Correlation Matrix for Model 2;
+
+title 'Correlation Matrix and Scatter Plots for Model 2';
+
+ods graphics on;
+
+proc corr data=Senic plots=matrix(histogram);
+
+var LOS IR AFAS NumofBeds;
+
+run;
+
+ods graphics off;
+
+title;
 
 ### Stem and Leaf Plot For Predictor Variables
 
@@ -176,7 +322,7 @@ hw11 <- hw1 %>% select(LOS,Age,IR,NumOfBeds,AFAS)
 
 ![Available Facilities and Services and Leaf Plot](stemNumOfBeds.PNG)
 
-
+\newpage
 
 ### Scatter Plots
 
